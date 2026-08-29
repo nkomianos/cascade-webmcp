@@ -75,7 +75,6 @@ function mapEdges(edges: FactorEdge[], selectedId: string): Edge[] {
       id: edge.id,
       source: edge.sourceId,
       target: edge.targetId,
-      type: 'bezier',
       className: `${edge.relation === 'blocks' ? 'risk-edge' : ''} ${edge.status === 'draft' ? 'draft-edge' : ''} ${selected ? 'selected-edge' : ''}`,
       style: { stroke: color, strokeWidth: selected ? 2.4 : 1.55, strokeDasharray: edge.status === 'draft' ? '4 6' : undefined },
       markerEnd: { type: MarkerType.ArrowClosed, color, width: 16, height: 16 },
