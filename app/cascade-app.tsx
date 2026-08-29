@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createBlankWorkspace, createCommunityWorkspace, createSampleWorkspace } from '../lib/sample';
-import { arrangeNodes, edgeCurve } from '../lib/layout';
+import { arrangeNodes } from '../lib/layout';
 import { runStressEngine, scenarioMetrics } from '../lib/stress';
 import type { FactorEdge, FactorNode, FactorType, Relation, Scenario, ToolResult, Workspace } from '../lib/types';
+import DecisionFlow from './decision-flow';
 
 type ViewMode = 'map' | 'list' | 'compare';
 type InspectorTab = 'factor' | 'proposals' | 'impact';
@@ -115,9 +116,9 @@ export default function CascadeApp() {
   const draftEdges = active.edges.filter((edge) => edge.status === 'draft');
   const proposalCount = drafts.length + draftEdges.length;
   const metrics = useMemo(() => scenarioMetrics(active), [active]);
-  const visibleNodes = active.nodes.filter((node) => node.status !== 'rejected');
-  const nodeById = new Map(visibleNodes.map((node) => [node.id, node]));
-  const visibleEdges = active.edges.filter((edge) => edge.status !== 'rejected' && nodeById.has(edge.sourceId) && nodeById.has(edge.targetId));
+  const visibleNodes = useMemo(() => active.nodes.filter((node) => node.status !== 'rejected'), [active.nodes]);
+  const nodeById = useMemo(() => new Map(visibleNodes.map((node) => [node.id, node])), [visibleNodes]);
+  const visibleEdges = useMemo(() => active.edges.filter((edge) => edge.status !== 'rejected' && nodeById.has(edge.sourceId) && nodeById.has(edge.targetId)), [active.edges, nodeById]);
 
   const switchScenario = (id: string) => {
     commit((next) => ({ ...next, activeScenarioId: id }));
@@ -182,6 +183,15 @@ export default function CascadeApp() {
     });
     setToast('Map arranged into semantic lanes');
   };
+
+  const moveFactor = useCallback((factorId: string, x: number, y: number) => {
+    commit((next) => {
+      const scenario = next.scenarios.find((item) => item.id === next.activeScenarioId);
+      const factor = scenario?.nodes.find((item) => item.id === factorId);
+      if (factor) { factor.x = x; factor.y = y; }
+      return next;
+    });
+  }, [commit]);
 
   const addFactor = () => {
     if (!newFactor.label.trim()) return;
@@ -373,7 +383,7 @@ export default function CascadeApp() {
 
         <section className="canvas-panel" aria-label="Decision canvas">
           <div className="canvas-toolbar"><div className="mode-switch"><button className={view === 'map' ? 'selected' : ''} onClick={() => setView('map')}>Map</button><button className={view === 'list' ? 'selected' : ''} onClick={() => setView('list')}>List</button></div><div className="canvas-actions"><span className="version-pill">v{active.version}</span><button onClick={arrangeActive}>Arrange</button><button onClick={() => setModal('receipt')}>Receipt</button><button onClick={() => setModal('add-relationship')}>+ Link</button><button className="primary-small" onClick={() => setModal('add-factor')}>+ Factor</button></div></div>
-          {view === 'map' && <div className="decision-canvas"><div className="canvas-label"><span>{active.name} map</span><small>{visibleNodes.length} factors · {visibleEdges.length} relationships</small></div><svg className="connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="edge-arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 6 3 L 0 6 z" /></marker></defs>{visibleEdges.map((edge) => { const source = nodeById.get(edge.sourceId)!; const target = nodeById.get(edge.targetId)!; return <path key={edge.id} markerEnd="url(#edge-arrow)" className={`${edge.relation === 'blocks' ? 'risk-edge' : ''} ${edge.status === 'draft' ? 'draft-edge' : ''} ${selected && (edge.sourceId === selected.id || edge.targetId === selected.id) ? 'selected-edge' : ''}`} d={edgeCurve(source, target)} />; })}</svg>{visibleNodes.map((node) => <button key={node.id} className={`factor-node ${node.type} ${node.status} ${selected?.id === node.id ? 'selected-node' : ''}`} style={{ left: `${node.x}%`, top: `${node.y}%` }} onClick={() => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }}><span className="node-topline"><span>{typeGlyph[node.type]} {node.type}</span>{node.locked && <b title="Human locked">◆</b>}</span><strong>{node.label}</strong><small>{node.status === 'draft' ? 'Agent proposal · review' : `${Math.round(node.confidence * 100)}% confidence`}</small></button>)}{!visibleNodes.length && <div className="empty-state"><strong>Start with the outcome.</strong><p>Add a factor, or ask your agent to stage a plan map.</p></div>}</div>}
+          {view === 'map' && <div className="decision-canvas"><div className="canvas-label"><span>{active.name} map</span><small>{visibleNodes.length} factors · {visibleEdges.length} relationships · drag cards to rearrange</small></div>{visibleNodes.length ? <DecisionFlow key={active.id} factors={visibleNodes} relationships={visibleEdges} selectedId={selected?.id ?? ''} onSelect={(node) => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }} onMove={moveFactor} /> : <div className="empty-state"><strong>Start with the outcome.</strong><p>Add a factor, or ask your agent to stage a plan map.</p></div>}</div>}
           {view === 'list' && <div className="list-view">{factorTypes.map((type) => { const items = visibleNodes.filter((node) => node.type === type); if (!items.length) return null; return <section key={type}><h2>{typeGlyph[type]} {type}s <span>{items.length}</span></h2>{items.map((node) => <button key={node.id} className={`list-factor ${node.status}`} onClick={() => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }}><span><strong>{node.label}</strong><small>{node.description}</small></span><b>{node.status === 'draft' ? 'Review' : `${Math.round(node.confidence * 100)}%`}</b></button>)}</section>; })}</div>}
           {view === 'compare' && <div className="compare-view"><div className="compare-intro"><span className="eyebrow">Scenario comparison</span><h2>See what bends—and what breaks.</h2><p>Every score comes from the same local, deterministic model.</p></div><div className="comparison-grid">{workspace.scenarios.map((scenario) => { const result = scenarioMetrics(scenario); return <article key={scenario.id} className={scenario.id === active.id ? 'current' : ''}><div><span>{scenario.status}</span><button onClick={() => switchScenario(scenario.id)}>Open</button></div><h3>{scenario.name}</h3><p>{scenario.premise}</p><strong className="exposure-number">{Math.round(result.exposureIndex)}</strong><small>exposure index</small><dl><div><dt>Coverage</dt><dd>{result.mitigationCoverage}%</dd></div><div><dt>Critical paths</dt><dd>{result.criticalPaths}</dd></div><div><dt>Day shift</dt><dd>{result.estimatedDayDelta > 0 ? '+' : ''}{result.estimatedDayDelta}</dd></div></dl></article>; })}</div></div>}
         </section>

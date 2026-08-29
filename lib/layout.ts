@@ -34,13 +34,3 @@ export function arrangeNodes(nodes: FactorNode[]): FactorNode[] {
 
   return nodes.map((node) => positions.has(node.id) ? { ...node, ...positions.get(node.id)! } : node);
 }
-
-export function edgeCurve(source: FactorNode, target: FactorNode) {
-  const forward = target.x >= source.x;
-  const sourceX = forward ? source.x + 20 : source.x;
-  const targetX = forward ? target.x : target.x + 20;
-  const sourceY = source.y + 7;
-  const targetY = target.y + 7;
-  const midpoint = (sourceX + targetX) / 2;
-  return `M ${sourceX} ${sourceY} C ${midpoint} ${sourceY}, ${midpoint} ${targetY}, ${targetX} ${targetY}`;
-}

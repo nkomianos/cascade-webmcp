@@ -44,6 +44,8 @@ Tools are registered imperatively with `document.modelContext.registerTool()`. S
 4. Review the staged proposals in the **Proposals** tab; accept one and reject another.
 5. Re-run the stress test and open the decision receipt.
 
+Drag any factor card to reorganize the map. Connections stay anchored to the cards in real time, and the canvas supports pan, zoom, and fit-to-view controls. Card positions persist locally without changing the decision model's semantic version.
+
 Choose **New plan → Product launch** for the featured, preselected demo. Cascade loads a connected pre-mortem covering demand, reliability, budget, trust, and timing. To prove the model is reusable beyond software, **Community tool lending** remains available as an alternate connected starter; **Start from scratch** supports any consequential plan.
 
 ## Run locally
@@ -66,13 +68,14 @@ npm run build
 ## Architecture
 
 - `app/cascade-app.tsx` — human interface, local persistence, and WebMCP registration
+- `app/decision-flow.tsx` — draggable React Flow canvas with measured edge anchors
 - `lib/sample.ts` — product-launch demonstration plus generic blank workspace
-- `lib/layout.ts` — deterministic semantic lanes and edge-to-edge curve routing
+- `lib/layout.ts` — deterministic semantic-lane arrangement
 - `lib/stress.ts` — deterministic graph propagation and scenario metrics
 - `lib/types.ts` — shared decision-domain model
 - `lib/stress.test.ts` — invariants for determinism, shocks, and draft isolation
 
-Data is kept in browser `localStorage`; there is no account requirement and no external AI API. The connected agent operates through the page's WebMCP tools.
+Data is kept in browser `localStorage`; there is no account requirement and no external AI API. The connected agent operates through the page's WebMCP tools. The interactive node canvas uses the MIT-licensed [React Flow](https://github.com/xyflow/xyflow) library.
 
 ## License
 

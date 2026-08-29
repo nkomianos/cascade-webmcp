@@ -14,12 +14,12 @@ The human and agent have deliberately different powers. The agent explores bread
 
 Before WebMCP, this workflow required copying a plan into chat, losing the page’s live state, then manually translating a response back into a diagram. In Cascade, an agent can reason over the actual model and stage visible changes while the human remains in charge of truth and commitment.
 
-WebMCP is implemented with imperative `document.modelContext.registerTool()` calls in the top-level page. The app is local-first, requires no account, and uses a deterministic graph-propagation engine so judges can reproduce every score.
+WebMCP is implemented with imperative `document.modelContext.registerTool()` calls in the top-level page. The app is local-first, requires no account, and uses a deterministic graph-propagation engine so judges can reproduce every score. Its React Flow canvas lets people drag factors into a meaningful spatial arrangement while measured edge anchors follow every move in real time.
 
 ## Demo video outline (2:35)
 
 - **0:00–0:18 — Hook:** “Most planning tools preserve the plan. Cascade preserves the reasoning—and lets an agent test it.” Show the product-launch baseline.
-- **0:18–0:42 — Human model:** Select a locked privacy constraint, an uncertain billing dependency, and the agent proposal queue.
+- **0:18–0:42 — Human model:** Drag a factor while its causal links follow, then select a locked privacy constraint, an uncertain billing dependency, and the agent proposal queue.
 - **0:42–1:10 — WebMCP:** Ask the agent to read the workspace and explain the hidden assumptions. Briefly show the eleven registered tools.
 - **1:10–1:38 — Counterfactual:** Open the Billing delay branch, run the stress test, and highlight the causal path from shock to launch outcome.
 - **1:38–2:02 — Collaboration:** Ask the agent to stage two mitigations. Accept one and reject one in the Proposals tab.
