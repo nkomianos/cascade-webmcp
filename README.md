@@ -44,7 +44,7 @@ Tools are registered imperatively with `document.modelContext.registerTool()`. S
 4. Review the staged proposals in the **Proposals** tab; accept one and reject another.
 5. Re-run the stress test and open the decision receipt.
 
-To test a completely different domain, choose **New plan → Community tool lending**. Cascade loads a connected pre-mortem covering safety, inventory, inclusion, volunteer capacity, and loss. People can add accepted factors and links directly; agents can stage both for review.
+Choose **New plan → Product launch** for the featured, preselected demo. Cascade loads a connected pre-mortem covering demand, reliability, budget, trust, and timing. To prove the model is reusable beyond software, **Community tool lending** remains available as an alternate connected starter; **Start from scratch** supports any consequential plan.
 
 ## Run locally
 

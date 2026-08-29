@@ -182,6 +182,7 @@ button { color: inherit; font: inherit; }
 .starter-choice button { display: grid; gap: 5px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #faf9f4; text-align: left; cursor: pointer; }
 .starter-choice button:hover { border-color: #aeb9ff; background: #f4f5ff; }
 .starter-choice button.selected { border-color: var(--blue); background: #f0f2ff; box-shadow: inset 0 0 0 1px var(--blue); }
+.starter-choice button.featured { grid-column: 1 / -1; }
 .starter-choice span { color: var(--blue); font: 700 8px var(--font-geist-mono); text-transform: uppercase; }
 .starter-choice strong { font-size: 10px; }.starter-choice small { color: var(--muted); font-size: 8px; line-height: 1.4; }
 .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
