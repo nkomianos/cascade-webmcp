@@ -4,7 +4,7 @@
 
 Cascade is a WebMCP-native decision canvas where a person and their agent turn a plan into an inspectable map of assumptions, dependencies, constraints, risks, and outcomes. The agent can stage a model, fork what-if worlds, apply shocks, and trace impact paths. The person keeps authority over locks, accepted facts, rejected proposals, and which branch becomes the decision.
 
-The included demo stress-tests the launch of a privacy-first team planning app in six weeks, but Cascade is deliberately generic: use it for a product launch, migration, event, policy, hiring plan, research program, or any decision with hidden dependencies.
+The default demo stress-tests the launch of a privacy-first team planning app in six weeks. A second, fully connected community tool-lending pre-mortem proves the model is reusable for migrations, events, policies, civic programs, hiring plans, research programs, or any decision with hidden dependencies.
 
 ## Why WebMCP
 
@@ -26,6 +26,7 @@ The collaboration boundary is the product:
 | `read_scenario` | Inspect factors, relationships, locks, and stress state |
 | `stage_plan_map` | Stage structured factors for human review |
 | `revise_draft` | Refine one unlocked draft |
+| `stage_relationships` | Stage causal links between existing factors |
 | `fork_scenario` | Create an isolated what-if branch |
 | `apply_shock` | Add a bounded shock to a branch |
 | `stage_mitigations` | Propose mitigations and reduction links |
@@ -42,6 +43,8 @@ Tools are registered imperatively with `document.modelContext.registerTool()`. S
 3. Ask: “Stage two mitigations for the billing-delay branch. Do not change locked factors.”
 4. Review the staged proposals in the **Proposals** tab; accept one and reject another.
 5. Re-run the stress test and open the decision receipt.
+
+To test a completely different domain, choose **New plan → Community tool lending**. Cascade loads a connected pre-mortem covering safety, inventory, inclusion, volunteer capacity, and loss. People can add accepted factors and links directly; agents can stage both for review.
 
 ## Run locally
 
@@ -64,6 +67,7 @@ npm run build
 
 - `app/cascade-app.tsx` — human interface, local persistence, and WebMCP registration
 - `lib/sample.ts` — product-launch demonstration plus generic blank workspace
+- `lib/layout.ts` — deterministic semantic lanes and edge-to-edge curve routing
 - `lib/stress.ts` — deterministic graph propagation and scenario metrics
 - `lib/types.ts` — shared decision-domain model
 - `lib/stress.test.ts` — invariants for determinism, shocks, and draft isolation

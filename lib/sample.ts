@@ -1,4 +1,5 @@
 import type { FactorEdge, FactorNode, Scenario, Workspace } from './types';
+import { arrangeNodes } from './layout';
 
 const now = '2026-08-28T12:00:00.000Z';
 
@@ -114,5 +115,48 @@ export const createBlankWorkspace = (title: string, question: string, goal: stri
       edges: [],
     }],
     activity: [{ id: `activity_${crypto.randomUUID().slice(0, 8)}`, actor: 'human', action: 'Created a new decision workspace.', createdAt: new Date().toISOString() }],
+  };
+};
+
+export const createCommunityWorkspace = (overrides?: Partial<Pick<Workspace, 'title' | 'question' | 'goal'>>): Workspace => {
+  const nodes: FactorNode[] = arrangeNodes([
+    { id: 'community_goal', type: 'objective', label: 'Safe, useful access for 100 households', description: 'The pilot makes occasional-use tools affordable without sacrificing safety or trust.', rationale: 'The outcome the community program exists to create.', confidence: 1, impact: 1, status: 'accepted', locked: true, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_safety', type: 'constraint', label: 'Every tool passes a safety inspection', description: 'Unsafe, recalled, or damaged tools cannot enter circulation.', rationale: 'Physical safety is a non-negotiable boundary.', confidence: 1, impact: 1, status: 'accepted', locked: true, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_budget', type: 'constraint', label: '$6,000 pilot budget', description: 'Storage, insurance, software, and repair costs must stay inside the grant.', rationale: 'The grant is fixed for the twelve-week pilot.', confidence: 1, impact: .82, estimatedCost: 6000, status: 'accepted', locked: true, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_donations', type: 'assumption', label: 'Residents donate 80 useful tools', description: 'The inventory must cover enough common jobs to make membership worthwhile.', rationale: 'Variety drives usefulness and repeat participation.', confidence: .58, impact: .78, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_volunteers', type: 'assumption', label: 'Volunteers sustain 12 hours each week', description: 'Inspection, handoff, returns, and repairs depend on predictable volunteer capacity.', rationale: 'The pilot has no full-time staff.', confidence: .61, impact: .84, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_inventory', type: 'dependency', label: 'Inventory and reservation records stay accurate', description: 'Members need reliable availability, condition, borrower, and due-date information.', rationale: 'Shared physical inventory fails when its digital state drifts.', confidence: .72, impact: .9, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_training', type: 'dependency', label: 'Borrowers understand safe use', description: 'Short orientations cover protective equipment and high-risk tools.', rationale: 'Safe operation depends on more than inspecting equipment.', confidence: .66, impact: .88, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_loss', type: 'risk', label: 'Loss and late returns shrink useful inventory', description: 'Unavailable tools can make the service feel unreliable and erode member trust.', rationale: 'A small shared inventory is sensitive to missing items.', confidence: .7, likelihood: .44, severity: .72, impact: .76, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_burnout', type: 'risk', label: 'Volunteer burnout disrupts opening hours', description: 'Unpredictable service makes pickup and return inconvenient.', rationale: 'Operations are concentrated in a small group.', confidence: .68, likelihood: .52, severity: .7, impact: .74, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_outcome', type: 'outcome', label: 'Twelve-week pilot earns community renewal', description: 'At least 100 households join, tools circulate safely, and the next funding round is justified.', rationale: 'The pilot must demonstrate both utility and stewardship.', confidence: .62, impact: 1, estimatedDays: 84, status: 'accepted', locked: false, origin: 'sample', x: 0, y: 0 },
+    { id: 'community_draft_equity', type: 'risk', label: 'Deposits and late fees exclude households', description: 'Controls intended to protect inventory may undermine equitable access.', rationale: 'A hidden tradeoff between loss prevention and inclusion.', confidence: .63, likelihood: .46, severity: .7, impact: .73, status: 'draft', locked: false, origin: 'agent', x: 0, y: 0 },
+    { id: 'community_draft_insurance', type: 'dependency', label: 'Insurance covers the highest-demand tools', description: 'Coverage exclusions may quietly remove power tools from the viable inventory.', rationale: 'A legal dependency should be verified before donations are accepted.', confidence: .45, impact: .86, status: 'draft', locked: false, origin: 'agent', x: 0, y: 0 },
+  ]);
+  const edges: FactorEdge[] = [
+    { id: 'community_edge_donations', sourceId: 'community_donations', targetId: 'community_inventory', relation: 'enables', strength: .78, rationale: 'Donations create the catalog members can reserve.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_volunteers_inventory', sourceId: 'community_volunteers', targetId: 'community_inventory', relation: 'enables', strength: .82, rationale: 'Volunteers maintain inventory state and handoffs.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_safety_training', sourceId: 'community_safety', targetId: 'community_training', relation: 'depends_on', strength: .8, rationale: 'The safety promise requires borrower orientation.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_inventory_loss', sourceId: 'community_inventory', targetId: 'community_loss', relation: 'reduces', strength: .67, rationale: 'Accurate records reduce preventable loss.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_volunteers_burnout', sourceId: 'community_volunteers', targetId: 'community_burnout', relation: 'blocks', strength: .58, rationale: 'Insufficient capacity increases burnout risk.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_loss_outcome', sourceId: 'community_loss', targetId: 'community_outcome', relation: 'blocks', strength: .7, rationale: 'Low availability undermines usefulness and renewal.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_burnout_outcome', sourceId: 'community_burnout', targetId: 'community_outcome', relation: 'blocks', strength: .74, rationale: 'Unreliable hours undermine participation.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_training_outcome', sourceId: 'community_training', targetId: 'community_outcome', relation: 'enables', strength: .76, rationale: 'Safe borrowers support incident-free circulation.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_inventory_outcome', sourceId: 'community_inventory', targetId: 'community_outcome', relation: 'enables', strength: .84, rationale: 'Reliable reservations are central to member value.', status: 'accepted', origin: 'sample' },
+    { id: 'community_edge_equity', sourceId: 'community_draft_equity', targetId: 'community_outcome', relation: 'blocks', strength: .62, rationale: 'Exclusion would reduce reach and legitimacy.', status: 'draft', origin: 'agent' },
+    { id: 'community_edge_insurance', sourceId: 'community_draft_insurance', targetId: 'community_donations', relation: 'blocks', strength: .72, rationale: 'Coverage exclusions constrain the usable catalog.', status: 'draft', origin: 'agent' },
+  ];
+  const scenario: Scenario = { id: 'scn_community_baseline', name: 'Baseline', premise: 'A volunteer-run twelve-week neighborhood pilot.', parentScenarioId: null, status: 'baseline', version: 1, nodes, edges };
+  return {
+    id: `workspace_${crypto.randomUUID().slice(0, 8)}`,
+    title: overrides?.title ?? 'Community tool-lending pilot',
+    question: overrides?.question ?? 'Can a neighborhood tool library reach useful scale without losing trust or inventory?',
+    goal: overrides?.goal ?? 'Pilot a safe, inclusive lending program for 100 households over 12 weeks.',
+    budget: 6000,
+    baselineScenarioId: scenario.id,
+    activeScenarioId: scenario.id,
+    version: 1,
+    scenarios: [scenario],
+    activity: [{ id: crypto.randomUUID(), actor: 'system', action: 'Loaded the community tool-lending pre-mortem starter.', createdAt: new Date().toISOString() }],
   };
 };
