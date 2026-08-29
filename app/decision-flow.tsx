@@ -125,7 +125,6 @@ export default function DecisionFlow({ factors, relationships, selectedId, onSel
       minZoom={0.35}
       maxZoom={1.6}
       zoomOnDoubleClick={false}
-      proOptions={{ hideAttribution: true }}
       colorMode="light"
     >
       <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="#d7d2c7" />
