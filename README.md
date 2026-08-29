@@ -6,18 +6,13 @@ Cascade is a WebMCP-native decision canvas where a person and their agent turn a
 
 The default demo stress-tests the launch of a privacy-first team planning app in six weeks. A second, fully connected community tool-lending pre-mortem proves the model is reusable for migrations, events, policies, civic programs, hiring plans, research programs, or any decision with hidden dependencies.
 
-## WebMCP Challenge submission
+## WebMCP Challenge
 
-Built for the [OpenAI WebMCP Challenge](https://openai.com/webmcp-challenge/) (Aug 25 – Sep 3, 2026). This repository was created and developed entirely within the challenge window.
+Built for the [OpenAI WebMCP Challenge](https://openai.com/webmcp-challenge/) (Aug 25 – Sep 3, 2026), developed entirely within the challenge window.
 
-- **Live demo:** _TODO — add hosted URL (Vercel/Netlify) before submitting_
-- **Demo video:** _TODO — add public demo video link before submitting_
-- **Code repository:** this repository (public, MIT licensed)
-- **Testing:** works in Google Chrome with `chrome://flags/#enable-webmcp-testing` enabled, or in ChatGPT's in-app browser where WebMCP is supported. Falls back to a normal human-only web app when WebMCP is unavailable.
-
-### Suggested Devpost description
-
-> Cascade is a WebMCP-native decision canvas where a person and their agent turn a plan into an inspectable map of assumptions, dependencies, constraints, risks, and outcomes together. Instead of a chatbot that can only discuss a plan, Cascade exposes compact, typed tools (`stage_plan_map`, `fork_scenario`, `apply_shock`, `run_stress_test`, `explain_impact_path`, and more) directly from the page via `document.modelContext.registerTool()`, so the agent gets precise, bounded access to the exact decision state visible in the browser — while the human keeps authority over locks, accepted facts, and which branch becomes the decision. Every mutating tool is staged as a draft, schema-closed, and version-checked against stale writes. The result is a decision receipt: a defensible, inspectable trail of why a plan was chosen, built collaboratively by a person and their agent.
+- **Live app:** coming soon
+- **Demo video:** coming soon
+- **Testing:** Google Chrome with `chrome://flags/#enable-webmcp-testing` enabled, or ChatGPT's in-app browser where WebMCP is supported. Falls back to a normal human-only web app when WebMCP is unavailable.
 
 ## Why WebMCP
 
