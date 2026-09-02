@@ -6,6 +6,7 @@ import { arrangeNodes } from '../lib/layout';
 import { runStressEngine, scenarioMetrics } from '../lib/stress';
 import type { FactorEdge, FactorNode, FactorType, Relation, Scenario, StressResult, ToolResult, Workspace } from '../lib/types';
 import DecisionFlow from './decision-flow';
+import { CanvasErrorBoundary } from './canvas-error-boundary';
 
 type ViewMode = 'map' | 'list' | 'compare';
 type InspectorTab = 'factor' | 'proposals' | 'impact';
@@ -75,8 +76,20 @@ export default function CascadeApp() {
 
   useEffect(() => {
     workspaceRef.current = workspace;
-    if (hydrated) localStorage.setItem(activeStorageKey(), JSON.stringify(workspace));
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(activeStorageKey(), JSON.stringify(workspace));
+    } catch {
+      queueMicrotask(() => setToast('Could not save locally — storage may be full'));
+    }
   }, [workspace, hydrated]);
+
+  useEffect(() => {
+    if (!modal) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setModal(null); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [modal]);
 
   useEffect(() => {
     if (!toast) return;
@@ -242,7 +255,8 @@ export default function CascadeApp() {
 
   const exportWorkspace = () => {
     const blob = new Blob([JSON.stringify(workspace, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob);
-    const link = document.createElement('a'); link.href = url; link.download = `${workspace.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'cascade'}-decision.json`; link.click();
+    const link = document.createElement('a'); link.href = url; link.download = `${workspace.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'cascade'}-decision.json`;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
     URL.revokeObjectURL(url); setToast('Decision workspace exported');
   };
 
@@ -383,7 +397,7 @@ export default function CascadeApp() {
 
         <section className="canvas-panel" aria-label="Decision canvas">
           <div className="canvas-toolbar"><div className="mode-switch"><button className={view === 'map' ? 'selected' : ''} onClick={() => setView('map')}>Map</button><button className={view === 'list' ? 'selected' : ''} onClick={() => setView('list')}>List</button></div><div className="canvas-actions"><span className="version-pill">v{active.version}</span><button onClick={arrangeActive}>Arrange</button><button onClick={() => setModal('receipt')}>Receipt</button><button onClick={() => setModal('add-relationship')}>+ Link</button><button className="primary-small" onClick={() => setModal('add-factor')}>+ Factor</button></div></div>
-          {view === 'map' && <div className="decision-canvas"><div className="canvas-label"><span>{active.name} map</span><small>{visibleNodes.length} factors · {visibleEdges.length} relationships · drag cards to rearrange</small></div>{visibleNodes.length ? <DecisionFlow key={active.id} factors={visibleNodes} relationships={visibleEdges} selectedId={selected?.id ?? ''} onSelect={(node) => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }} onMove={moveFactor} /> : <div className="empty-state"><strong>Start with the outcome.</strong><p>Add a factor, or ask your agent to stage a plan map.</p></div>}</div>}
+          {view === 'map' && <div className="decision-canvas"><div className="canvas-label"><span>{active.name} map</span><small>{visibleNodes.length} factors · {visibleEdges.length} relationships · drag cards to rearrange</small></div>{visibleNodes.length ? <CanvasErrorBoundary><DecisionFlow key={active.id} factors={visibleNodes} relationships={visibleEdges} selectedId={selected?.id ?? ''} onSelect={(node) => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }} onMove={moveFactor} /></CanvasErrorBoundary> : <div className="empty-state"><strong>Start with the outcome.</strong><p>Add a factor, or ask your agent to stage a plan map.</p></div>}</div>}
           {view === 'list' && <div className="list-view">{factorTypes.map((type) => { const items = visibleNodes.filter((node) => node.type === type); if (!items.length) return null; return <section key={type}><h2>{typeGlyph[type]} {type}s <span>{items.length}</span></h2>{items.map((node) => <button key={node.id} className={`list-factor ${node.status}`} onClick={() => { setSelectedId(node.id); setTab(node.status === 'draft' ? 'proposals' : 'factor'); }}><span><strong>{node.label}</strong><small>{node.description}</small></span><b>{node.status === 'draft' ? 'Review' : `${Math.round(node.confidence * 100)}%`}</b></button>)}</section>; })}</div>}
           {view === 'compare' && <div className="compare-view"><div className="compare-intro"><span className="eyebrow">Scenario comparison</span><h2>See what bends—and what breaks.</h2><p>Every score comes from the same local, deterministic model.</p></div><div className="comparison-grid">{workspace.scenarios.map((scenario) => { const result = scenarioMetrics(scenario); return <article key={scenario.id} className={scenario.id === active.id ? 'current' : ''}><div><span>{scenario.status}</span><button onClick={() => switchScenario(scenario.id)}>Open</button></div><h3>{scenario.name}</h3><p>{scenario.premise}</p><strong className="exposure-number">{Math.round(result.exposureIndex)}</strong><small>exposure index</small><dl><div><dt>Coverage</dt><dd>{result.mitigationCoverage}%</dd></div><div><dt>Critical paths</dt><dd>{result.criticalPaths}</dd></div><div><dt>Day shift</dt><dd>{result.estimatedDayDelta > 0 ? '+' : ''}{result.estimatedDayDelta}</dd></div></dl></article>; })}</div></div>}
         </section>
