@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createBlankWorkspace, createCommunityWorkspace, createSampleWorkspace } from '../lib/sample';
 import { arrangeNodes } from '../lib/layout';
 import { runStressEngine, scenarioMetrics } from '../lib/stress';
-import type { FactorEdge, FactorNode, FactorType, Relation, Scenario, ToolResult, Workspace } from '../lib/types';
+import type { FactorEdge, FactorNode, FactorType, Relation, Scenario, StressResult, ToolResult, Workspace } from '../lib/types';
 import DecisionFlow from './decision-flow';
 
 type ViewMode = 'map' | 'list' | 'compare';
@@ -229,7 +229,7 @@ export default function CascadeApp() {
 
   const runStress = useCallback((scenarioId?: string) => {
     const targetId = scenarioId ?? workspaceRef.current.activeScenarioId;
-    let result = runStressEngine(workspaceRef.current.scenarios.find((scenario) => scenario.id === targetId)!);
+    let result!: StressResult;
     commit((next) => {
       const scenario = next.scenarios.find((item) => item.id === targetId);
       if (!scenario) return next;

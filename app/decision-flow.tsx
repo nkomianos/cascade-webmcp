@@ -13,6 +13,7 @@ import {
   type Node,
   type NodeMouseHandler,
   type NodeProps,
+  type OnNodeDrag,
   useNodesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -103,7 +104,7 @@ export default function DecisionFlow({ factors, relationships, selectedId, onSel
     onSelect(node.data.factor);
   }, [onSelect]);
 
-  const handleNodeDragStop = useCallback<NodeMouseHandler<FactorFlowNode>>((_event, node) => {
+  const handleNodeDragStop = useCallback<OnNodeDrag<FactorFlowNode>>((_event, node) => {
     const position = fromPosition(node.position);
     onMove(node.id, position.x, position.y);
   }, [onMove]);
