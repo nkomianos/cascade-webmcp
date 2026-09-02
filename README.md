@@ -6,6 +6,14 @@ Cascade is a WebMCP-native decision canvas where a person and their agent turn a
 
 The default demo stress-tests the launch of a privacy-first team planning app in six weeks. A second, fully connected community tool-lending pre-mortem proves the model is reusable for migrations, events, policies, civic programs, hiring plans, research programs, or any decision with hidden dependencies.
 
+## WebMCP Challenge
+
+Built for the [OpenAI WebMCP Challenge](https://openai.com/webmcp-challenge/) (Aug 25 – Sep 3, 2026), developed entirely within the challenge window.
+
+- **Live app:** coming soon
+- **Demo video:** coming soon
+- **Testing:** Google Chrome with `chrome://flags/#enable-webmcp-testing` enabled, or ChatGPT's in-app browser where WebMCP is supported. Falls back to a normal human-only web app when WebMCP is unavailable.
+
 ## Why WebMCP
 
 A conventional chatbot can discuss a plan, but it cannot safely and reliably manipulate the exact decision state visible in a browser. Cascade exposes compact, typed tools directly from the page. This gives the agent precise access to the active scenario while the visual interface gives the human provenance, review controls, locks, comparisons, and a decision receipt.
